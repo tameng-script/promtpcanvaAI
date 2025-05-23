@@ -1,0 +1,1829 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="th">
+
+
+<head>
+
+
+<meta charset="UTF-8">
+
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+<title>ระบบสร้าง Prompt เกมการศึกษา</title>
+
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+
+<style>
+
+
+body {
+
+
+font-family: 'Kanit', sans-serif;
+
+
+background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+
+
+min-height: 100vh;
+
+
+}
+
+
+.prompt-card {
+
+
+transition: all 0.3s ease;
+
+
+}
+
+
+.prompt-card:hover {
+
+
+transform: translateY(-5px);
+
+
+box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+
+}
+
+
+.copy-button {
+
+
+transition: all 0.2s ease;
+
+
+}
+
+
+.copy-button:hover {
+
+
+background-color: #4338ca;
+
+
+}
+
+
+.copy-button:active {
+
+
+transform: scale(0.95);
+
+
+}
+
+
+.toast {
+
+
+position: fixed;
+
+
+bottom: 20px;
+
+
+left: 50%;
+
+
+transform: translateX(-50%);
+
+
+padding: 12px 24px;
+
+
+background-color: #10b981;
+
+
+color: white;
+
+
+border-radius: 8px;
+
+
+box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+
+
+opacity: 0;
+
+
+transition: opacity 0.3s ease;
+
+
+z-index: 1000;
+
+
+}
+
+
+.toast.show {
+
+
+opacity: 1;
+
+
+}
+
+
+.dropdown-menu {
+
+
+max-height: 200px;
+
+
+overflow-y: auto;
+
+
+z-index: 50;
+
+
+}
+
+
+.dropdown-item:hover {
+
+
+background-color: #f3f4f6;
+
+
+}
+
+
+.dropdown-item.active {
+
+
+background-color: #e0e7ff;
+
+
+}
+
+
+.tab {
+
+
+transition: all 0.3s ease;
+
+
+}
+
+
+.tab.active {
+
+
+background-color: #4f46e5;
+
+
+color: white;
+
+
+}
+
+
+.tab:hover:not(.active) {
+
+
+background-color: #e0e7ff;
+
+
+}
+
+
+</style>
+
+
+</head>
+
+
+<body class="p-4 md:p-8">
+
+
+<div class="max-w-6xl mx-auto">
+
+
+<div class="bg-white rounded-xl shadow-xl p-6 md:p-8 mb-8">
+
+
+<h1 class="text-3xl md:text-4xl font-bold text-center mb-2 text-indigo-800">ระบบสร้าง Prompt เกมการศึกษา</h1>
+
+
+<p class="text-gray-600 text-center mb-6">ใส่รายวิชาและแนวคิดเกมที่ต้องการ เพื่อสร้าง prompt สำหรับ Canva AI</p>
+
+
+
+
+
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+
+
+<div class="relative">
+
+
+<label for="subject" class="block text-sm font-medium text-gray-700 mb-1">รายวิชา</label>
+
+
+<div class="relative">
+
+
+<input type="text" id="subject" placeholder="เลือกหรือพิมพ์รายวิชา"
+
+
+class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none">
+
+
+<button id="subjectDropdownBtn" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
+
+
+<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+
+
+<path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+
+
+</svg>
+
+
+</button>
+
+
+</div>
+
+
+<div id="subjectDropdown" class="hidden absolute mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg dropdown-menu">
+
+
+<!-- Subject options will be populated here -->
+
+
+</div>
+
+
+</div>
+
+
+<div class="relative">
+
+
+<label for="gameType" class="block text-sm font-medium text-gray-700 mb-1">แนวคิดเกม</label>
+
+
+<div class="relative">
+
+
+<input type="text" id="gameType" placeholder="เลือกหรือพิมพ์แนวคิดเกม"
+
+
+class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none">
+
+
+<button id="gameTypeDropdownBtn" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
+
+
+<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+
+
+<path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+
+
+</svg>
+
+
+</button>
+
+
+</div>
+
+
+<div id="gameTypeDropdown" class="hidden absolute mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg dropdown-menu">
+
+
+<!-- Game type options will be populated here -->
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+
+
+<div>
+
+
+<label class="block text-sm font-medium text-gray-700 mb-1">ระดับการศึกษา</label>
+
+
+<div class="flex flex-wrap gap-2">
+
+
+<button class="tab px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium" data-level="ประถมต้น">ประถมต้น (ป.1-3)</button>
+
+
+<button class="tab px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium" data-level="ประถมปลาย">ประถมปลาย (ป.4-6)</button>
+
+
+<button class="tab px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium" data-level="มัธยมต้น">มัธยมต้น (ม.1-3)</button>
+
+
+<button class="tab px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium" data-level="มัธยมปลาย">มัธยมปลาย (ม.4-6)</button>
+
+
+</div>
+
+
+</div>
+
+
+<div>
+
+
+<label class="block text-sm font-medium text-gray-700 mb-1">จำนวนผู้เล่น</label>
+
+
+<div class="flex flex-wrap gap-2">
+
+
+<button class="tab px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium" data-players="1">1 คน</button>
+
+
+<button class="tab px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium" data-players="2">2 คน</button>
+
+
+<button class="tab px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium" data-players="3-4">3-4 คน</button>
+
+
+<button class="tab px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium" data-players="5+">5+ คน</button>
+
+
+<button class="tab px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium" data-players="ทั้งชั้นเรียน">ทั้งชั้นเรียน</button>
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+<div class="flex justify-center">
+
+
+<button id="generateBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-8 rounded-lg transition duration-300 flex items-center">
+
+
+<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+
+
+<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
+
+
+</svg>
+
+
+สร้าง Prompt
+
+
+</button>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+<div id="loadingIndicator" class="hidden flex justify-center items-center my-8">
+
+
+<div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
+
+
+</div>
+
+
+
+
+
+
+<div id="promptsContainer" class="hidden grid grid-cols-1 md:grid-cols-2 gap-6">
+
+
+<!-- Prompts will be generated here -->
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+<div id="toast" class="toast">คัดลอก Prompt สำเร็จ!</div>
+
+
+
+
+
+
+<script>
+
+
+// Expanded list of subjects
+
+
+const subjects = [
+
+
+// ภาษา
+
+
+"ภาษาไทย", "ภาษาอังกฤษ", "ภาษาจีน", "ภาษาญี่ปุ่น", "ภาษาเกาหลี", "ภาษาฝรั่งเศส", "ภาษาเยอรมัน", "ภาษาสเปน",
+
+
+
+
+
+
+// คณิตศาสตร์และวิทยาศาสตร์
+
+
+"คณิตศาสตร์", "วิทยาศาสตร์", "ฟิสิกส์", "เคมี", "ชีววิทยา", "ดาราศาสตร์", "วิทยาศาสตร์สิ่งแวดล้อม", "วิทยาการคำนวณ",
+
+
+
+
+
+
+// สังคมศึกษา
+
+
+"สังคมศึกษา", "ประวัติศาสตร์", "ภูมิศาสตร์", "หน้าที่พลเมือง", "เศรษฐศาสตร์", "พระพุทธศาสนา", "อาเซียนศึกษา",
+
+
+
+
+
+
+// ศิลปะและดนตรี
+
+
+"ศิลปะ", "ดนตรี", "นาฏศิลป์", "ทัศนศิลป์", "ศิลปะการแสดง",
+
+
+
+
+
+
+// สุขศึกษาและพลศึกษา
+
+
+"สุขศึกษา", "พลศึกษา", "กีฬา", "สุขภาพและความปลอดภัย",
+
+
+
+
+
+
+// การงานอาชีพ
+
+
+"การงานอาชีพ", "เกษตรกรรม", "คหกรรม", "ธุรกิจและการเป็นผู้ประกอบการ", "งานช่าง",
+
+
+
+
+
+
+// เทคโนโลยี
+
+
+"เทคโนโลยี", "คอมพิวเตอร์", "การเขียนโปรแกรม", "หุ่นยนต์", "การออกแบบเว็บไซต์", "การสร้างแอปพลิเคชัน",
+
+
+
+
+
+
+// บูรณาการ
+
+
+"STEM", "บูรณาการวิชา", "โครงงาน", "การเรียนรู้แบบโครงงาน", "การเรียนรู้ตามสภาพจริง"
+
+
+];
+
+
+
+
+
+
+// Expanded list of game types
+
+
+const gameTypes = [
+
+
+// เกมกระดาน
+
+
+"เกมบิงโก", "เกมกระดานผจญภัย", "เกมเศรษฐี", "เกมกระดานสะสมคะแนน", "เกมกระดานยุทธศาสตร์",
+
+
+
+
+
+
+// เกมไพ่และบัตรคำ
+
+
+"เกมบัตรคำ", "เกมจับคู่บัตรภาพ", "เกมไพ่ความรู้", "เกมเรียงลำดับบัตร", "เกมบัตรคำถาม-คำตอบ",
+
+
+
+
+
+
+// เกมตอบคำถาม
+
+
+"เกมตอบคำถาม", "เกมควิซ", "เกมแข่งขันตอบปัญหา", "เกมทายคำ", "เกมปริศนาคำทาย",
+
+
+
+
+
+
+// เกมจำลองสถานการณ์
+
+
+"เกมจำลองสถานการณ์", "เกมบทบาทสมมติ", "เกมสถานการณ์จำลอง", "เกมจำลองธุรกิจ", "เกมจำลองการทดลอง",
+
+
+
+
+
+
+// เกมผจญภัย
+
+
+"เกมผจญภัย", "เกมล่าสมบัติ", "เกมปริศนาผจญภัย", "เกมหนีห้อง", "เกมแผนที่สมบัติ",
+
+
+
+
+
+
+// เกมความจำ
+
+
+"เกมความจำ", "เกมจับคู่ภาพเหมือน", "เกมจดจำลำดับ", "เกมทบทวนความจำ", "เกมจำภาพ",
+
+
+
+
+
+
+// เกมสร้างสรรค์
+
+
+"เกมสร้างสรรค์", "เกมต่อเติมภาพ", "เกมสร้างเรื่องราว", "เกมออกแบบ", "เกมประดิษฐ์",
+
+
+
+
+
+
+// เกมกลยุทธ์
+
+
+"เกมกลยุทธ์", "เกมวางแผน", "เกมแก้ปัญหา", "เกมตรรกะ", "เกมหมากรุก",
+
+
+
+
+
+
+// เกมเคลื่อนไหว
+
+
+"เกมเคลื่อนไหว", "เกมกระโดด", "เกมวิ่งเก็บของ", "เกมสนามแข่ง", "เกมกีฬาจำลอง",
+
+
+
+
+
+
+// เกมดิจิทัล
+
+
+"เกมคลิกและลาก", "เกมจิ๊กซอว์", "เกมปริศนาดิจิทัล", "เกมจับผิดภาพ", "เกมเรียงบล็อก"
+
+
+];
+
+
+
+
+
+
+// Specific topics for each subject
+
+
+const specificTopics = {
+
+
+// ภาษาไทย
+
+
+"ภาษาไทย": ["คำราชาศัพท์", "คำพ้องรูป พ้องเสียง", "ประโยคและส่วนประกอบ", "การอ่านจับใจความ", "การเขียนเรียงความ", "วรรณคดีไทย", "สำนวนไทย", "การใช้เครื่องหมายวรรคตอน", "คำควบกล้ำ", "มาตราตัวสะกด", "การแต่งกลอน", "การเขียนจดหมาย", "การพูดในที่สาธารณะ", "การเขียนรายงาน", "การย่อความ"],
+
+
+
+
+
+
+// ภาษาอังกฤษ
+
+
+"ภาษาอังกฤษ": ["คำศัพท์พื้นฐาน", "ไวยากรณ์", "การสนทนา", "การอ่านจับใจความ", "การเขียนประโยค", "คำกริยา 3 ช่อง", "Tenses", "คำคุณศัพท์และคำกริยาวิเศษณ์", "คำบุพบท", "สำนวนภาษาอังกฤษ", "การเขียนจดหมาย", "การเขียนเรียงความ", "การฟัง", "การพูดนำเสนอ", "การอ่านบทความ"],
+
+
+
+
+
+
+// คณิตศาสตร์
+
+
+"คณิตศาสตร์": ["การบวกลบเลขหลักเดียว", "การคูณหารเลขหลักเดียว", "เศษส่วน", "ทศนิยม", "เรขาคณิต", "พีชคณิต", "สมการ", "การวัด", "สถิติเบื้องต้น", "ความน่าจะเป็น", "จำนวนเต็ม", "เลขยกกำลัง", "รากที่สอง", "ตรีโกณมิติ", "แคลคูลัส"],
+
+
+
+
+
+
+// วิทยาศาสตร์
+
+
+"วิทยาศาสตร์": ["ระบบสุริยะ", "สิ่งมีชีวิต", "พลังงาน", "แรงและการเคลื่อนที่", "สสารและการเปลี่ยนแปลง", "ระบบนิเวศ", "ร่างกายมนุษย์", "ไฟฟ้า", "แม่เหล็ก", "สารเคมีในชีวิตประจำวัน", "การสืบพันธุ์", "การถ่ายทอดลักษณะทางพันธุกรรม", "วัฏจักรน้ำ", "การเปลี่ยนแปลงของโลก", "การอนุรักษ์สิ่งแวดล้อม"],
+
+
+
+
+
+
+// สังคมศึกษา
+
+
+"สังคมศึกษา": ["ภูมิศาสตร์ไทย", "ประวัติศาสตร์ไทย", "หน้าที่พลเมือง", "เศรษฐศาสตร์เบื้องต้น", "ศาสนาและวัฒนธรรม", "การปกครอง", "สิทธิมนุษยชน", "ทรัพยากรและสิ่งแวดล้อม", "อาเซียน", "ประชากรศึกษา", "ภูมิศาสตร์โลก", "ประวัติศาสตร์โลก", "การพัฒนาที่ยั่งยืน", "กฎหมายในชีวิตประจำวัน", "การเมืองการปกครอง"]
+
+
+};
+
+
+
+
+
+
+// Add more specific topics for other subjects
+
+
+subjects.forEach(subject => {
+
+
+if (!specificTopics[subject]) {
+
+
+specificTopics[subject] = ["ความรู้พื้นฐาน", "ทฤษฎีสำคัญ", "การประยุกต์ใช้", "แนวคิดหลัก", "ประวัติและพัฒนาการ", "เทคนิคและวิธีการ", "เครื่องมือและอุปกรณ์", "กรณีศึกษา", "การวิเคราะห์", "การสังเคราะห์"];
+
+
+}
+
+
+});
+
+
+
+
+
+
+// Template structures for different game types
+
+
+const promptTemplates = {
+
+
+general: [
+
+
+"สร้างเกม{gameType}เกี่ยวกับ{subject}ที่มีกราฟิกสวยงาม สีสันสดใส เหมาะสำหรับนักเรียนระดับ{level} ให้มีระบบคะแนน กฎกติกาชัดเจน และมีความสนุกสนาน ท้าทาย เกมควรมีหน้าเริ่มต้นที่ดึงดูดความสนใจ มีปุ่มเริ่มเกมที่เห็นชัดเจน และมีคำอธิบายวิธีการเล่นอย่างละเอียด เนื้อหาควรครอบคลุมเรื่อง{specificTopic}ในวิชา{subject} ออกแบบให้มีระดับความยากที่เหมาะสม มีการให้ผลตอบรับทันทีเมื่อผู้เล่นตอบถูกหรือผิด และมีหน้าสรุปผลเมื่อจบเกม เกมนี้ออกแบบสำหรับผู้เล่น{players}",
+
+
+
+
+
+
+"ออกแบบเกม{gameType}สำหรับการเรียนรู้{subject}ที่มีธีมสดใส น่าสนใจ ให้มีตัวละครน่ารักเป็นผู้นำทาง มีระบบการให้คะแนนและรางวัล เกมควรมีหลายด่านที่ยากขึ้นเรื่อยๆ เนื้อหาเน้นเรื่อง{specificTopic} มีการอธิบายความรู้สั้นๆ ก่อนเริ่มแต่ละด่าน มีเสียงเอฟเฟกต์เมื่อตอบถูกหรือผิด และมีการสรุปความรู้เมื่อจบเกม ออกแบบให้เล่นได้ทั้งบนคอมพิวเตอร์และอุปกรณ์มือถือ เหมาะสำหรับนักเรียนระดับ{level} และรองรับผู้เล่น{players}",
+
+
+
+
+
+
+"สร้างเกมการศึกษาแนว{gameType}ที่สอนเรื่อง{specificTopic}ในวิชา{subject} ให้มีการออกแบบที่ทันสมัย ใช้สีที่สบายตา มีระบบนับเวลาเพื่อเพิ่มความท้าทาย มีระดับความยากให้เลือก (ง่าย ปานกลาง ยาก) มีการอธิบายกฎกติกาอย่างชัดเจน มีปุ่มช่วยเหลือที่ให้คำใบ้ มีการแสดงความก้าวหน้าของผู้เล่น และมีหน้าสรุปความรู้พร้อมคะแนนเมื่อจบเกม เกมนี้เหมาะสำหรับนักเรียนระดับ{level} และออกแบบสำหรับผู้เล่น{players}"
+
+
+]
+
+
+};
+
+
+
+
+
+
+// Add specific templates for each game type
+
+
+gameTypes.forEach(gameType => {
+
+
+if (!promptTemplates[gameType]) {
+
+
+promptTemplates[gameType] = promptTemplates.general;
+
+
+}
+
+
+});
+
+
+
+
+
+
+// Educational level descriptions
+
+
+const levelDescriptions = {
+
+
+"ประถมต้น": "ประถมศึกษาตอนต้น (ป.1-3)",
+
+
+"ประถมปลาย": "ประถมศึกษาตอนปลาย (ป.4-6)",
+
+
+"มัธยมต้น": "มัธยมศึกษาตอนต้น (ม.1-3)",
+
+
+"มัธยมปลาย": "มัธยมศึกษาตอนปลาย (ม.4-6)"
+
+
+};
+
+
+
+
+
+
+// Level-specific content adjustments
+
+
+const levelAdjustments = {
+
+
+"ประถมต้น": "เน้นความสนุกสนาน ใช้ภาพประกอบที่น่ารัก สีสันสดใส ตัวอักษรขนาดใหญ่ คำอธิบายสั้นและเข้าใจง่าย ใช้ภาษาที่เหมาะสมกับเด็กเล็ก มีตัวการ์ตูนน่ารักเป็นผู้นำทาง และมีเสียงประกอบที่สนุกสนาน",
+
+
+
+
+
+
+"ประถมปลาย": "มีความท้าทายมากขึ้น แต่ยังคงความสนุกสนาน ใช้ภาพประกอบที่ดึงดูดความสนใจ มีการอธิบายที่ชัดเจน มีระบบการให้รางวัลและแรงจูงใจ มีการเชื่อมโยงกับชีวิตประจำวัน และมีกิจกรรมที่ส่งเสริมการคิดวิเคราะห์เบื้องต้น",
+
+
+
+
+
+
+"มัธยมต้น": "มีความท้าทายและซับซ้อนมากขึ้น มีเนื้อหาที่ลึกซึ้ง ส่งเสริมการคิดวิเคราะห์และการแก้ปัญหา มีการเชื่อมโยงกับสถานการณ์จริง มีระบบการแข่งขันและการทำงานเป็นทีม และมีการประยุกต์ใช้ความรู้ในสถานการณ์ต่างๆ",
+
+
+
+
+
+
+"มัธยมปลาย": "มีความซับซ้อนและท้าทายสูง เน้นการคิดวิเคราะห์ขั้นสูง การคิดเชิงวิพากษ์ การแก้ปัญหาที่ซับซ้อน การประยุกต์ใช้ความรู้ในสถานการณ์จริง การเตรียมความพร้อมสู่การศึกษาต่อหรือการทำงาน และการพัฒนาทักษะการเรียนรู้ตลอดชีวิต"
+
+
+};
+
+
+
+
+
+
+// Player count descriptions
+
+
+const playerDescriptions = {
+
+
+"1": "ผู้เล่นเดี่ยว",
+
+
+"2": "ผู้เล่นสองคน",
+
+
+"3-4": "ผู้เล่นกลุ่มเล็ก (3-4 คน)",
+
+
+"5+": "ผู้เล่นกลุ่มใหญ่ (5 คนขึ้นไป)",
+
+
+"ทั้งชั้นเรียน": "ทั้งชั้นเรียน"
+
+
+};
+
+
+
+
+
+
+// Player count adjustments
+
+
+const playerAdjustments = {
+
+
+"1": "ออกแบบให้ผู้เล่นคนเดียวสามารถเล่นได้อย่างสนุกสนาน มีระบบการให้คำแนะนำและช่วยเหลือ มีการบันทึกความก้าวหน้าและสถิติส่วนตัว และมีความท้าทายที่เหมาะสมกับการเล่นคนเดียว",
+
+
+
+
+
+
+"2": "ออกแบบให้มีการแข่งขันหรือร่วมมือกันระหว่างผู้เล่นสองคน มีระบบการผลัดกันเล่น การแข่งขันโดยตรง หรือการร่วมมือกันแก้ปัญหา และมีการแสดงผลคะแนนหรือความก้าวหน้าของทั้งสองฝ่าย",
+
+
+
+
+
+
+"3-4": "ออกแบบให้เหมาะกับการเล่นเป็นกลุ่มเล็ก มีระบบการผลัดกันเล่นหรือเล่นพร้อมกัน มีกิจกรรมที่ส่งเสริมการทำงานเป็นทีม การแบ่งบทบาทหน้าที่ และการแข่งขันระหว่างกลุ่มย่อย",
+
+
+
+
+
+
+"5+": "ออกแบบให้รองรับผู้เล่นจำนวนมาก มีระบบการแบ่งทีมหรือกลุ่ม มีกิจกรรมที่ทุกคนมีส่วนร่วม มีการหมุนเวียนบทบาทหรือตำแหน่ง และมีกลไกที่ช่วยให้เกมดำเนินไปอย่างราบรื่นแม้มีผู้เล่นหลายคน",
+
+
+
+
+
+
+"ทั้งชั้นเรียน": "ออกแบบให้เหมาะกับการเล่นทั้งชั้นเรียน มีระบบการแบ่งกลุ่มหรือทีม มีบทบาทที่หลากหลายให้นักเรียนทุกคนมีส่วนร่วม มีกิจกรรมที่ส่งเสริมการมีปฏิสัมพันธ์ระหว่างกลุ่ม และมีระบบการจัดการที่ช่วยให้ครูสามารถดำเนินกิจกรรมได้อย่างมีประสิทธิภาพ"
+
+
+};
+
+
+
+
+
+
+// Initialize selected values
+
+
+let selectedLevel = "ประถมปลาย";
+
+
+let selectedPlayers = "1";
+
+
+
+
+
+
+// Populate dropdowns
+
+
+function populateDropdown(dropdownId, items) {
+
+
+const dropdown = document.getElementById(dropdownId);
+
+
+dropdown.innerHTML = '';
+
+
+
+
+
+
+items.forEach(item => {
+
+
+const option = document.createElement('div');
+
+
+option.className = 'dropdown-item px-4 py-2 cursor-pointer hover:bg-gray-100';
+
+
+option.textContent = item;
+
+
+option.addEventListener('click', function() {
+
+
+document.getElementById(dropdownId.replace('Dropdown', '')).value = item;
+
+
+dropdown.classList.add('hidden');
+
+
+});
+
+
+dropdown.appendChild(option);
+
+
+});
+
+
+}
+
+
+
+
+
+
+// Initialize dropdowns
+
+
+populateDropdown('subjectDropdown', subjects);
+
+
+populateDropdown('gameTypeDropdown', gameTypes);
+
+
+
+
+
+
+// Toggle dropdowns
+
+
+document.getElementById('subjectDropdownBtn').addEventListener('click', function() {
+
+
+document.getElementById('subjectDropdown').classList.toggle('hidden');
+
+
+document.getElementById('gameTypeDropdown').classList.add('hidden');
+
+
+});
+
+
+
+
+
+
+document.getElementById('gameTypeDropdownBtn').addEventListener('click', function() {
+
+
+document.getElementById('gameTypeDropdown').classList.toggle('hidden');
+
+
+document.getElementById('subjectDropdown').classList.add('hidden');
+
+
+});
+
+
+
+
+
+
+// Close dropdowns when clicking outside
+
+
+document.addEventListener('click', function(event) {
+
+
+if (!event.target.closest('#subjectDropdownBtn') && !event.target.closest('#subjectDropdown')) {
+
+
+document.getElementById('subjectDropdown').classList.add('hidden');
+
+
+}
+
+
+if (!event.target.closest('#gameTypeDropdownBtn') && !event.target.closest('#gameTypeDropdown')) {
+
+
+document.getElementById('gameTypeDropdown').classList.add('hidden');
+
+
+}
+
+
+});
+
+
+
+
+
+
+// Handle tab selection for education level
+
+
+document.querySelectorAll('[data-level]').forEach(tab => {
+
+
+tab.addEventListener('click', function() {
+
+
+document.querySelectorAll('[data-level]').forEach(t => t.classList.remove('active'));
+
+
+this.classList.add('active');
+
+
+selectedLevel = this.getAttribute('data-level');
+
+
+});
+
+
+});
+
+
+
+
+
+
+// Handle tab selection for player count
+
+
+document.querySelectorAll('[data-players]').forEach(tab => {
+
+
+tab.addEventListener('click', function() {
+
+
+document.querySelectorAll('[data-players]').forEach(t => t.classList.remove('active'));
+
+
+this.classList.add('active');
+
+
+selectedPlayers = this.getAttribute('data-players');
+
+
+});
+
+
+});
+
+
+
+
+
+
+// Set default active tabs
+
+
+document.querySelector('[data-level="ประถมปลาย"]').classList.add('active');
+
+
+document.querySelector('[data-players="1"]').classList.add('active');
+
+
+
+
+
+
+// Generate prompts
+
+
+document.getElementById('generateBtn').addEventListener('click', generatePrompts);
+
+
+
+
+
+
+function generatePrompts() {
+
+
+const subject = document.getElementById('subject').value.trim() || getRandomItem(subjects);
+
+
+const gameType = document.getElementById('gameType').value.trim() || getRandomItem(gameTypes);
+
+
+
+
+
+
+if (!subject || !gameType) {
+
+
+alert('กรุณาระบุรายวิชาและแนวคิดเกม');
+
+
+return;
+
+
+}
+
+
+
+
+
+
+// Show loading indicator
+
+
+document.getElementById('loadingIndicator').classList.remove('hidden');
+
+
+document.getElementById('promptsContainer').classList.add('hidden');
+
+
+
+
+
+
+setTimeout(() => {
+
+
+const promptsContainer = document.getElementById('promptsContainer');
+
+
+promptsContainer.innerHTML = '';
+
+
+
+
+
+
+for (let i = 1; i <= 10; i++) {
+
+
+const specificTopic = getRandomItem(specificTopics[subject] || specificTopics["คณิตศาสตร์"]);
+
+
+const prompt = generatePrompt(subject, gameType, specificTopic, selectedLevel, selectedPlayers, i);
+
+
+
+
+
+
+const promptCard = document.createElement('div');
+
+
+promptCard.className = 'prompt-card bg-white rounded-lg shadow-lg p-6 mb-6';
+
+
+
+
+
+
+promptCard.innerHTML = `
+
+
+<div class="flex justify-between items-center mb-4">
+
+
+<h3 class="text-xl font-semibold text-indigo-800">Prompt #${i}: ${gameType} - ${subject}</h3>
+
+
+<button class="copy-button bg-indigo-600 text-white px-4 py-2 rounded-lg flex items-center" data-prompt="${encodeURIComponent(prompt)}">
+
+
+<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+
+
+<path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
+
+
+<path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
+
+
+</svg>
+
+
+คัดลอก
+
+
+</button>
+
+
+</div>
+
+
+<div class="grid grid-cols-2 gap-3 mb-4">
+
+
+<div class="text-gray-700"><span class="font-medium">วิชา:</span> ${subject}</div>
+
+
+<div class="text-gray-700"><span class="font-medium">เนื้อหา:</span> ${specificTopic}</div>
+
+
+<div class="text-gray-700"><span class="font-medium">ประเภทเกม:</span> ${gameType}</div>
+
+
+<div class="text-gray-700"><span class="font-medium">ระดับ:</span> ${levelDescriptions[selectedLevel]}</div>
+
+
+<div class="text-gray-700"><span class="font-medium">ผู้เล่น:</span> ${playerDescriptions[selectedPlayers]}</div>
+
+
+</div>
+
+
+<div class="bg-gray-50 p-4 rounded-lg max-h-60 overflow-y-auto">
+
+
+<p class="text-gray-600 whitespace-pre-wrap">${prompt}</p>
+
+
+</div>
+
+
+`;
+
+
+
+
+
+
+promptsContainer.appendChild(promptCard);
+
+
+}
+
+
+
+
+
+
+// Add event listeners to copy buttons
+
+
+document.querySelectorAll('.copy-button').forEach(button => {
+
+
+button.addEventListener('click', function() {
+
+
+const promptText = decodeURIComponent(this.getAttribute('data-prompt'));
+
+
+copyToClipboard(promptText);
+
+
+showToast();
+
+
+});
+
+
+});
+
+
+
+
+
+
+// Hide loading indicator and show prompts
+
+
+document.getElementById('loadingIndicator').classList.add('hidden');
+
+
+document.getElementById('promptsContainer').classList.remove('hidden');
+
+
+}, 1000); // Simulate loading time
+
+
+}
+
+
+
+
+
+
+function generatePrompt(subject, gameType, specificTopic, level, players, index) {
+
+
+// Choose template based on game type or use general template
+
+
+let templates = promptTemplates[gameType] || promptTemplates.general;
+
+
+let template = getRandomItem(templates);
+
+
+
+
+
+
+// Replace placeholders
+
+
+let prompt = template
+
+
+.replace(/{subject}/g, subject)
+
+
+.replace(/{gameType}/g, gameType)
+
+
+.replace(/{specificTopic}/g, specificTopic)
+
+
+.replace(/{level}/g, levelDescriptions[level])
+
+
+.replace(/{players}/g, playerDescriptions[players]);
+
+
+
+
+
+
+// Add level-specific adjustments
+
+
+prompt += " " + levelAdjustments[level];
+
+
+
+
+
+
+// Add player-specific adjustments
+
+
+prompt += " " + playerAdjustments[players];
+
+
+
+
+
+
+// Add additional details to make each prompt unique and reach ~500 words
+
+
+const additionalDetails = [
+
+
+`เกมนี้ควรมีการออกแบบที่ดึงดูดความสนใจของผู้เรียนระดับ${levelDescriptions[level]} โดยใช้สีสันที่สดใสและเหมาะสมกับเนื้อหาวิชา${subject} ควรมีการใช้ภาพประกอบที่ชัดเจนและเกี่ยวข้องกับเนื้อหา${specificTopic} เพื่อช่วยให้ผู้เรียนเข้าใจได้ง่ายขึ้น`,
+
+
+
+
+
+
+`ระบบการเล่นควรมีความท้าทายแต่ไม่ยากเกินไป เหมาะสำหรับผู้เรียนระดับ${levelDescriptions[level]}ที่กำลังศึกษาเรื่อง${specificTopic} ควรมีระดับความยากให้เลือกอย่างน้อย 3 ระดับ คือ ง่าย ปานกลาง และยาก เพื่อให้เหมาะกับผู้เรียนที่มีพื้นฐานแตกต่างกัน`,
+
+
+
+
+
+
+`เกมควรมีระบบการให้คำแนะนำหรือช่วยเหลือเมื่อผู้เล่นตอบผิดหรือติดปัญหา โดยให้คำอธิบายที่ชัดเจนและเข้าใจง่าย มีการเชื่อมโยงกับเนื้อหาในบทเรียนเรื่อง${specificTopic} เพื่อให้ผู้เรียนได้ทบทวนและเข้าใจมากขึ้น`,
+
+
+
+
+
+
+`ควรมีระบบการให้รางวัลหรือแรงจูงใจ เช่น เหรียญ ดาว หรือแต้มสะสม เมื่อผู้เล่นทำภารกิจสำเร็จหรือตอบคำถามถูกต้อง และสามารถนำรางวัลเหล่านี้ไปแลกเป็นไอเทมพิเศษหรือปลดล็อกเนื้อหาเพิ่มเติมได้`,
+
+
+
+
+
+
+`เกมควรมีการบันทึกความก้าวหน้าของผู้เล่น มีการแสดงสถิติการเล่น เช่น คะแนนสูงสุด เวลาที่ใช้ จำนวนครั้งที่ตอบถูก/ผิด เพื่อให้ผู้เรียนสามารถติดตามพัฒนาการของตนเองได้`,
+
+
+
+
+
+
+`ควรมีโหมดการเล่นที่หลากหลาย เช่น โหมดเรียนรู้ที่เน้นการอธิบายเนื้อหา โหมดทดสอบที่เน้นการวัดความเข้าใจ และโหมดแข่งขันที่สามารถเล่นกับเพื่อนหรือแข่งกับเวลาได้ เหมาะสำหรับการเล่นแบบ${playerDescriptions[players]}`,
+
+
+
+
+
+
+`ธีมและกราฟิกของเกมควรสอดคล้องกับเนื้อหาวิชา${subject} และเรื่อง${specificTopic} มีการออกแบบตัวละครหรือสัญลักษณ์ที่เป็นตัวแทนของแนวคิดสำคัญในบทเรียน เพื่อช่วยให้ผู้เรียนจดจำเนื้อหาได้ดียิ่งขึ้น`,
+
+
+
+
+
+
+`เกมควรมีการนำเสนอเนื้อหาที่ถูกต้องตามหลักวิชาการ มีการอ้างอิงแหล่งที่มาของข้อมูล และมีการตรวจสอบความถูกต้องของเนื้อหาโดยผู้เชี่ยวชาญในสาขาวิชา${subject} เพื่อให้ผู้เรียนได้รับความรู้ที่ถูกต้อง`,
+
+
+
+
+
+
+`ควรมีการออกแบบให้เกมสามารถเล่นได้ทั้งบนคอมพิวเตอร์และอุปกรณ์มือถือ มีการปรับขนาดหน้าจอให้เหมาะสมกับอุปกรณ์ต่างๆ และมีการควบคุมที่ใช้งานง่ายทั้งการคลิกและการสัมผัสหน้าจอ`,
+
+
+
+
+
+
+`เกมควรมีการเชื่อมโยงกับชีวิตจริงหรือสถานการณ์ที่ผู้เรียนอาจพบเจอ เพื่อให้เห็นการประยุกต์ใช้ความรู้เรื่อง${specificTopic} ในชีวิตประจำวัน และเข้าใจความสำคัญของการเรียนรู้เนื้อหานี้`
+
+
+];
+
+
+
+
+
+
+// Add game-specific details
+
+
+const gameSpecificDetails = {
+
+
+"เกมบิงโก": `สำหรับเกมบิงโกนี้ ควรออกแบบตารางบิงโกที่มีความสวยงาม มีการใช้สีที่แตกต่างกันเพื่อแยกประเภทของเนื้อหา มีการสุ่มตำแหน่งของคำตอบในแต่ละครั้งที่เล่นใหม่ และมีเอฟเฟกต์พิเศษเมื่อได้บิงโก เช่น แสงระยิบระยับหรือเสียงเฉลิมฉลอง ควรมีตัวเลือกให้ปรับขนาดของตารางบิงโกได้ตามความยากง่าย และมีระบบบันทึกเวลาที่ใช้ในการทำบิงโกแต่ละครั้ง เกมนี้เหมาะสำหรับการเล่นแบบ${playerDescriptions[players]}`,
+
+
+
+
+
+
+"เกมจับคู่": `สำหรับเกมจับคู่นี้ ควรออกแบบการ์ดที่มีความสวยงาม มีภาพประกอบที่ชัดเจนและเกี่ยวข้องกับเนื้อหา มีเอฟเฟกต์การพลิกการ์ดที่ดูเป็นธรรมชาติ และมีการแสดงผลที่ชัดเจนเมื่อจับคู่ถูกต้อง ควรมีระบบการสุ่มตำแหน่งการ์ดในแต่ละครั้งที่เล่นใหม่ และมีตัวเลือกให้ปรับจำนวนคู่การ์ดได้ตามความยากง่าย เกมนี้เหมาะสำหรับการเล่นแบบ${playerDescriptions[players]}`,
+
+
+
+
+
+
+"เกมตอบคำถาม": `สำหรับเกมตอบคำถามนี้ ควรมีคลังคำถามที่หลากหลายและครอบคลุมเนื้อหาสำคัญ มีรูปแบบคำถามที่หลากหลาย เช่น เลือกตอบ ถูก/ผิด จับคู่ เรียงลำดับ เติมคำในช่องว่าง มีระบบการสุ่มคำถามและตัวเลือกในแต่ละครั้งที่เล่น และมีการอธิบายเพิ่มเติมเมื่อตอบผิด ควรมีระบบการจัดอันดับคะแนนและการแข่งขันกับเพื่อน เกมนี้เหมาะสำหรับการเล่นแบบ${playerDescriptions[players]}`,
+
+
+
+
+
+
+"เกมกระดาน": `สำหรับเกมกระดานนี้ ควรออกแบบกระดานที่มีเส้นทางที่น่าสนใจ มีจุดพิเศษต่างๆ บนกระดาน เช่น ช่องคำถาม ช่องโชคดี ช่องโชคร้าย มีระบบการเดินหมากที่เป็นธรรมชาติ และมีภารกิจพิเศษระหว่างทาง ควรมีตัวเลือกให้ปรับความยาวของเส้นทางและความซับซ้อนของเกมได้ตามความยากง่าย เกมนี้เหมาะสำหรับการเล่นแบบ${playerDescriptions[players]}`,
+
+
+
+
+
+
+"เกมบัตรคำ": `สำหรับเกมบัตรคำนี้ ควรออกแบบบัตรคำที่มีความสวยงาม มีการจัดวางข้อความและภาพประกอบที่ชัดเจน มีระบบการพลิกบัตรคำที่เป็นธรรมชาติ และมีการแสดงข้อมูลเพิ่มเติมเมื่อคลิกที่บัตรคำ ควรมีระบบการจัดกลุ่มบัตรคำตามหัวข้อย่อย และมีโหมดการเล่นที่หลากหลาย เช่น โหมดทบทวน โหมดทดสอบ โหมดเกมความเร็ว เกมนี้เหมาะสำหรับการเล่นแบบ${playerDescriptions[players]}`
+
+
+};
+
+
+
+
+
+
+// Add random additional details
+
+
+const shuffledDetails = shuffleArray([...additionalDetails]);
+
+
+let additionalText = shuffledDetails.slice(0, 4).join(' ');
+
+
+
+
+
+
+// Add game-specific detail if available
+
+
+if (gameSpecificDetails[gameType]) {
+
+
+additionalText += ' ' + gameSpecificDetails[gameType];
+
+
+}
+
+
+
+
+
+
+// Add conclusion
+
+
+const conclusions = [
+
+
+`โดยสรุป เกม${gameType}นี้ควรเป็นเครื่องมือการเรียนรู้ที่มีประสิทธิภาพ ช่วยให้ผู้เรียนระดับ${levelDescriptions[level]}เข้าใจเนื้อหาวิชา${subject}เรื่อง${specificTopic}ได้ดียิ่งขึ้น ผ่านการเล่นเกมที่สนุกและท้าทาย ทำให้การเรียนรู้เป็นเรื่องที่น่าสนใจและน่าจดจำ เกมนี้ออกแบบให้เหมาะกับการเล่นแบบ${playerDescriptions[players]} ทำให้เกิดการเรียนรู้ที่มีประสิทธิภาพและสนุกสนาน`,
+
+
+
+
+
+
+`เกม${gameType}นี้จะช่วยส่งเสริมการเรียนรู้วิชา${subject}เรื่อง${specificTopic}อย่างมีประสิทธิภาพสำหรับนักเรียนระดับ${levelDescriptions[level]} ทำให้ผู้เรียนได้ฝึกทักษะและทบทวนความรู้ผ่านกิจกรรมที่สนุกสนาน เกิดแรงจูงใจในการเรียนรู้ และสามารถนำความรู้ไปประยุกต์ใช้ได้จริง เกมนี้ออกแบบให้เหมาะกับการเล่นแบบ${playerDescriptions[players]} ทำให้การเรียนรู้เป็นประสบการณ์ที่น่าประทับใจ`,
+
+
+
+
+
+
+`การออกแบบเกม${gameType}นี้มุ่งเน้นให้ผู้เรียนระดับ${levelDescriptions[level]}ได้เรียนรู้วิชา${subject}เรื่อง${specificTopic}อย่างสนุกสนานและมีประสิทธิภาพ ช่วยกระตุ้นความสนใจ เสริมสร้างความเข้าใจ และส่งเสริมการจดจำเนื้อหาในระยะยาว เกมนี้ออกแบบให้เหมาะกับการเล่นแบบ${playerDescriptions[players]} ทำให้การเรียนรู้เป็นกิจกรรมที่น่าตื่นเต้นและมีความหมาย`
+
+
+];
+
+
+
+
+
+
+prompt += ' ' + additionalText + ' ' + getRandomItem(conclusions);
+
+
+
+
+
+
+return prompt;
+
+
+}
+
+
+
+
+
+
+function getRandomItem(array) {
+
+
+return array[Math.floor(Math.random() * array.length)];
+
+
+}
+
+
+
+
+
+
+function shuffleArray(array) {
+
+
+for (let i = array.length - 1; i > 0; i--) {
+
+
+const j = Math.floor(Math.random() * (i + 1));
+
+
+[array[i], array[j]] = [array[j], array[i]];
+
+
+}
+
+
+return array;
+
+
+}
+
+
+
+
+
+
+function copyToClipboard(text) {
+
+
+const textarea = document.createElement('textarea');
+
+
+textarea.value = text;
+
+
+document.body.appendChild(textarea);
+
+
+textarea.select();
+
+
+document.execCommand('copy');
+
+
+document.body.removeChild(textarea);
+
+
+}
+
+
+
+
+
+
+function showToast() {
+
+
+const toast = document.getElementById('toast');
+
+
+toast.classList.add('show');
+
+
+setTimeout(() => {
+
+
+toast.classList.remove('show');
+
+
+}, 2000);
+
+
+}
+
+
+
+
+
+
+// Filter dropdowns on input
+
+
+document.getElementById('subject').addEventListener('input', function() {
+
+
+const value = this.value.toLowerCase();
+
+
+const dropdown = document.getElementById('subjectDropdown');
+
+
+
+
+
+
+if (value) {
+
+
+dropdown.classList.remove('hidden');
+
+
+const filteredSubjects = subjects.filter(subject =>
+
+
+subject.toLowerCase().includes(value)
+
+
+);
+
+
+
+
+
+
+populateDropdown('subjectDropdown', filteredSubjects);
+
+
+} else {
+
+
+dropdown.classList.add('hidden');
+
+
+}
+
+
+});
+
+
+
+
+
+
+document.getElementById('gameType').addEventListener('input', function() {
+
+
+const value = this.value.toLowerCase();
+
+
+const dropdown = document.getElementById('gameTypeDropdown');
+
+
+
+
+
+
+if (value) {
+
+
+dropdown.classList.remove('hidden');
+
+
+const filteredGameTypes = gameTypes.filter(gameType =>
+
+
+gameType.toLowerCase().includes(value)
+
+
+);
+
+
+
+
+
+
+populateDropdown('gameTypeDropdown', filteredGameTypes);
+
+
+} else {
+
+
+dropdown.classList.add('hidden');
+
+
+}
+
+
+});
+
+
+</script>
+
+
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'943c24c873c099a6',t:'MTc0NzkxNTEyNy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+
+
+</html>
+
+
